@@ -2,23 +2,22 @@ provider "aws" {
   region = var.region
 }
 
-data "aws_ami" "ami" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-
-  owners = ["099720109477"]
+variable "production" {
+  default = "green"
 }
 
-resource "aws_instance" "ansible_server" {
-  ami           = data.aws_ami.ami.id
-  instance_type = "t3.small"
+module "base" {
+  source     = "terraform-in-action/aws/bluegreen//modules/base"
+  production = var.production
 }
 
-resource "aws_instance" "my_instance" {
-  ami           = data.aws_ami.ami.id
-  instance_type = "t2.micro"
+module "green" {
+  source      = "terraform-in-action/aws/bluegreen//modules/autoscaling"
+  app_version = "v1.0"
+  label       = "green"
+  base        = module.base
+}
+
+output "lb_dns_name" {
+  value = module.base.lb_dns_name
 }

@@ -17,3 +17,8 @@ resource "aws_instance" "ansible_server" {
   ami           = data.aws_ami.ami.id
   instance_type = "t3.small"
 }
+
+resource "aws_instance" "my_instance" {
+  ami           = data.aws_ami.ami.id
+  instance_type = "t2.micro"
+}
